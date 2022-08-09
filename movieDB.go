@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"golang.org/x/net/html"
+
 	"github.com/gorilla/mux"
 )
 
@@ -80,6 +82,46 @@ func updateMovie(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getRatings() []string {
+	var titleList []string
+
+	for i := 0; i < len(movies); i++ {
+		titleList = append(titleList, movies[i].Title)
+	}
+
+	//for j := 0; j < len(titleList); j++ {
+	response, err := http.Get("https://letterboxd.com/film/the-dark-knight/")
+
+	if err != nil {
+		fmt.Printf("%s", err)
+	} else {
+		doc, err := html.Parse(response.Body)
+
+		parse_html(doc)
+		fmt.Printf("%s", err)
+	}
+
+	defer response.Body.Close()
+	//}
+
+	return titleList
+}
+
+func parse_html(n *html.Node) {
+	if n.Type == html.ElementNode && n.Data == "a" {
+		for _, element := range n.Attr {
+			if element.Key == "href" {
+				fmt.Printf("%s\n", element.Val)
+			}
+		}
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		parse_html(c)
+	}
+
+}
+
 func main() {
 
 	r := mux.NewRouter()
@@ -94,6 +136,7 @@ func main() {
 	r.HandleFunc("/movies/{id}", deleteMovie).Methods("DELETE")
 
 	fmt.Printf("Starting server at post 8081\n")
+	fmt.Print(getRatings())
 	log.Fatal(http.ListenAndServe(":8081", r))
 
 }
