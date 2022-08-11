@@ -12,6 +12,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type ok struct {
+	Success bool `json:"success"`
+}
+
 func ping(w http.ResponseWriter, r *http.Request) {
 	response, err := http.Get("https://api.hatchways.io/assessment/blog/posts")
 
@@ -20,21 +24,32 @@ func ping(w http.ResponseWriter, r *http.Request) {
 		os.Exit(1)
 	}
 
+	data := ok{true}
 	response.Body.Close()
-	json.NewEncoder(w).Encode(1)
+	json.NewEncoder(w).Encode(data)
 
 }
 
 type Response struct {
 	Tags      string `json:"tags"`
-	Sort      string `json:sortBy`
-	Direction string `json:direction`
+	Sort      string `json:"sortBy"`
+	Direction string `json:"direction"`
+}
+
+type Error struct {
+	Error string `json:"error"`
 }
 
 func posts(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 	tag := params["tags"]
+
+	if tag == "" {
+		d := Error{Error: "Tags parameter is required"}
+		json.NewEncoder(w).Encode(d)
+	}
+
 	response, err := http.Get("https://api.hatchways.io/assessment/blog/posts?tag=" + tag)
 
 	if err != nil {
@@ -48,9 +63,6 @@ func posts(w http.ResponseWriter, r *http.Request) {
 		os.Exit(1)
 	}
 
-	//var object Response
-	//json.Unmarshal(data, &object)
-
 	var prettyData bytes.Buffer
 	error := json.Indent(&prettyData, data, "", "\t")
 	if error != nil {
@@ -58,7 +70,6 @@ func posts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(prettyData.Bytes())
-
 }
 
 func main() {
