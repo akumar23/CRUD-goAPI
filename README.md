@@ -1,3 +1,3 @@
-# CRUD-goAPI
+# GOLANG APIs
 
-CRUD API made in go for a movie database
+Collection of CRUD and REST APIs I've made using golang
