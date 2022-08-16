@@ -82,6 +82,9 @@ func updateMovie(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+/*
+Functions for getting the rating of the movie from its title. This functionality is still not finished
+*/
 func getRatings() []string {
 	var titleList []string
 
@@ -114,7 +117,7 @@ func getRatings() []string {
 func parse_html(n *html.Node) {
 	//if n.Type == html.ElementNode {
 	for _, element := range n.Attr {
-		fmt.Printf("%s\n", element)
+		//fmt.Printf("%s\n", element)
 		if element.Key == "class" {
 			//if element.Val == "text-slug tooltip" {
 			//fmt.Printf("%s\n", element.Val)
